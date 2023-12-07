@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import "./App.css";
 import EntryCard from "./components/entry";
 import EntriesForm from "./components/form";
@@ -7,18 +7,39 @@ export type Entry = {
   id: number;
   title: string;
   content: string;
+  author: string;
 };
 
 function App() {
   const [entries, setEntries] = useState<Entry[]>([]);
+  const [author, setAuthor] = useState("");
   const [content, setContent] = useState("");
   const [title, setTitle] = useState("");
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
+  const [searchText, setSearchText] = useState("");
+
+  const filteredEntries = useMemo(() => {
+    return entries.filter((entry) => {
+      const formattedSearchText = searchText.toLocaleLowerCase();
+      return (
+        entry.title.toLowerCase().includes(formattedSearchText) ||
+        entry.content.toLowerCase().includes(formattedSearchText) ||
+        entry.author.toLowerCase().includes(formattedSearchText)
+      );
+    });
+  }, [entries, searchText]);
+
+  const cleanUpInputs = () => {
+    setTitle("");
+    setContent("");
+    setAuthor("");
+  };
 
   const handleEntryClick = (entry: Entry) => {
     setSelectedEntry(entry);
     setTitle(entry.title);
     setContent(entry.content);
+    setAuthor(entry.author);
   };
 
   const handleAddEntry = async (event: React.FormEvent) => {
@@ -31,14 +52,14 @@ function App() {
         body: JSON.stringify({
           title,
           content,
+          author,
         }),
       });
 
       const newEntry = await response.json();
 
       setEntries([newEntry, ...entries]);
-      setTitle("");
-      setContent("");
+      cleanUpInputs();
     } catch (error) {
       console.log("error: ", error);
     }
@@ -60,6 +81,7 @@ function App() {
           body: JSON.stringify({
             title,
             content,
+            author,
           }),
         }
       );
@@ -70,8 +92,7 @@ function App() {
       });
 
       setEntries(updatedEntryList);
-      setTitle("");
-      setContent("");
+      cleanUpInputs();
       setSelectedEntry(null);
     } catch (error) {
       console.log(error);
@@ -79,8 +100,7 @@ function App() {
   };
 
   const handleCancel = () => {
-    setTitle("");
-    setContent("");
+    cleanUpInputs();
     setSelectedEntry(null);
   };
 
@@ -118,21 +138,30 @@ function App() {
 
   return (
     <div className="app-container">
-      <input type="search" className="search-bar"/>
+      <input
+        value={searchText}
+        type="search"
+        className="search-bar"
+        onChange={(event) => {
+          setSearchText(event.target.value);
+        }}
+      />
       <EntriesForm
         onSubmit={(event) =>
           selectedEntry ? handleUpdate(event) : handleAddEntry(event)
         }
         onCancel={handleCancel}
+        author={author}
         title={title}
         content={content}
         isEditMode={!!selectedEntry}
+        setAuthor={setAuthor}
         setContent={setContent}
         setTitle={setTitle}
       />
 
       <div className="notes-grid">
-        {entries.map((entry) => (
+        {filteredEntries.map((entry) => (
           <EntryCard
             key={entry.id}
             entry={entry}

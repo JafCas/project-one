@@ -20,6 +20,7 @@ const EntryCard = ({ entry, onClick, onDelete }: EntryProps) => {
       </div>
       <h2>{entry.title}</h2>
       <p>{entry.content}</p>
+      <p>{entry.author}</p>
     </div>
   );
 };
