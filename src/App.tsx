@@ -28,7 +28,15 @@ function App() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
+
+  const handleEntryClick = (entry: Entry) => {
+    setSelectedEntry(entry);
+    setTitle(entry.title);
+    setContent(entry.content);
+  };
+
+  const handleAddEntry = (event: React.FormEvent) => {
     event.preventDefault();
     const newEntry: Entry = {
       id: entries.length + 1,
@@ -39,9 +47,52 @@ function App() {
     setTitle("");
     setContent("");
   };
+
+  const handleUpdate = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    if (!selectedEntry) {
+      return;
+    }
+
+    const updatedEntry: Entry = {
+      id: selectedEntry.id,
+      title: title,
+      content: content,
+    };
+
+    const updatedEntryList = entries.map((entry) => {
+      return entry.id === selectedEntry.id ? updatedEntry : entry;
+    });
+
+    setEntries(updatedEntryList);
+    setTitle("");
+    setContent("");
+    setSelectedEntry(null);
+  };
+
+  const handleCancel = () => {
+    setTitle("");
+    setContent("");
+    setSelectedEntry(null);
+  };
+
+  const deleteEntry = (event: React.MouseEvent, noteId: number) => {
+    event.stopPropagation();
+
+    const updatedEntries = entries.filter((entries) => entries.id !== noteId);
+
+    setEntries(updatedEntries);
+  };
+
   return (
     <div className="app-container">
-      <form className="note-form" onSubmit={(event) => handleSubmit(event)}>
+      <form
+        className="note-form"
+        onSubmit={(event) =>
+          selectedEntry ? handleUpdate(event) : handleAddEntry(event)
+        }
+      >
         <input
           value={title}
           onChange={(event) => {
@@ -59,12 +110,35 @@ function App() {
           rows={10}
           required
         ></textarea>
-        <button type="submit">Add Entry</button>
+        {selectedEntry ? (
+          <div className="edit-buttons">
+            <button
+              type="submit"
+              onSubmit={(event) => {
+                handleUpdate(event);
+              }}
+            >
+              Save
+            </button>
+            <button onClick={handleCancel}>cancel</button>
+          </div>
+        ) : (
+          <button type="submit">Add Entry</button>
+        )}
       </form>
       <div className="notes-grid">
         {entries.map((entry) => (
-          <div className="note-item" key={entry.id}>
-            <div className="notes-header">
+          <div
+            className="note-item"
+            key={entry.id}
+            onClick={() => handleEntryClick(entry)}
+          >
+            <div
+              className="notes-header"
+              onClick={(event) => {
+                return deleteEntry(event, entry.id);
+              }}
+            >
               <button>x</button>
             </div>
             <h2>{entry.title}</h2>
