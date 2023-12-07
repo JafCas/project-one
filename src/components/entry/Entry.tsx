@@ -1,7 +1,7 @@
 import React from "react";
-import "../App.css";
+import "../../App.css";
 
-import { Entry } from "../App";
+import { Entry } from "../../App";
 
 type EntryProps = {
   entry: Entry;
@@ -10,6 +10,8 @@ type EntryProps = {
 };
 
 const EntryCard = ({ entry, onClick, onDelete }: EntryProps) => {
+  const publishDate = new Date(entry.publishDate).toDateString();
+  const previewContent = entry.content.substring(0, 69);
   return (
     <div className="note-item" onClick={() => onClick(entry)}>
       <div
@@ -19,8 +21,9 @@ const EntryCard = ({ entry, onClick, onDelete }: EntryProps) => {
         <button>x</button>
       </div>
       <h2>{entry.title}</h2>
-      <p>{entry.content}</p>
       <p>{entry.author}</p>
+      <p>{publishDate}</p>
+      <p>{previewContent}...</p>
     </div>
   );
 };
