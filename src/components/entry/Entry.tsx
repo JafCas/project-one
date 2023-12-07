@@ -1,5 +1,5 @@
 import React from "react";
-import "../../App.css";
+import "./Entry.css";
 
 import { Entry } from "../../App";
 
