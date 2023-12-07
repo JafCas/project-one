@@ -15,14 +15,14 @@ app.get("/api/notes", async (request, response) => {
 });
 
 app.post("/api/notes", async (request, response) => {
-  const { title, content } = request.body;
-  if (!title || !content) {
+  const { title, content, author } = request.body;
+  if (!title || !content || !author) {
     return response.status(400).send("title and content fields required");
   }
 
   try {
     const entry = await prisma.entry.create({
-      data: { title, content },
+      data: { title, content, author },
     });
     response.json(entry);
   } catch (error) {
@@ -31,10 +31,10 @@ app.post("/api/notes", async (request, response) => {
 });
 
 app.put("/api/notes/:id", async (request, response) => {
-  const { title, content } = request.body;
+  const { title, content, author } = request.body;
   const id = parseInt(request.params.id);
 
-  if (!title || !content) {
+  if (!title || !content || !author) {
     return response.status(400).send("title and content fields required");
   }
 
@@ -45,7 +45,7 @@ app.put("/api/notes/:id", async (request, response) => {
   try {
     const updatedNote = await prisma.entry.update({
       where: { id },
-      data: { title, content },
+      data: { title, content, author },
     });
     response.json(updatedNote);
   } catch (error) {
