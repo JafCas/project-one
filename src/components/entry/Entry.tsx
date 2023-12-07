@@ -1,5 +1,6 @@
 import React from "react";
 import "./Entry.css";
+import CancelIcon from '@mui/icons-material/Cancel';
 
 import { Entry } from "../../App";
 
@@ -22,7 +23,9 @@ const EntryCard = ({ entry, onClick, onDelete, isSelected }: EntryProps) => {
         className="notes-header"
         onClick={(event) => onDelete(event, entry.id)}
       >
-        <button>x</button>
+        <button>
+          <CancelIcon />
+        </button>
       </div>
       <h2>{entry.title}</h2>
       <p>{entry.author}</p>
