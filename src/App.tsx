@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
+import EntryCard from "./components/entry";
+import EntriesForm from "./components/form";
 
-type Entry = {
+export type Entry = {
   id: number;
   title: string;
   content: string;
@@ -9,9 +11,8 @@ type Entry = {
 
 function App() {
   const [entries, setEntries] = useState<Entry[]>([]);
-  const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-
+  const [title, setTitle] = useState("");
   const [selectedEntry, setSelectedEntry] = useState<Entry | null>(null);
 
   const handleEntryClick = (entry: Entry) => {
@@ -117,63 +118,27 @@ function App() {
 
   return (
     <div className="app-container">
-      <form
-        className="note-form"
+      <input type="search" className="search-bar"/>
+      <EntriesForm
         onSubmit={(event) =>
           selectedEntry ? handleUpdate(event) : handleAddEntry(event)
         }
-      >
-        <input
-          value={title}
-          onChange={(event) => {
-            setTitle(event.target.value);
-          }}
-          placeholder="title"
-          required
-        ></input>
-        <textarea
-          value={content}
-          onChange={(event) => {
-            setContent(event.target.value);
-          }}
-          placeholder="content"
-          rows={10}
-          required
-        ></textarea>
-        {selectedEntry ? (
-          <div className="edit-buttons">
-            <button
-              type="submit"
-              onSubmit={(event) => {
-                handleUpdate(event);
-              }}
-            >
-              Save
-            </button>
-            <button onClick={handleCancel}>cancel</button>
-          </div>
-        ) : (
-          <button type="submit">Add Entry</button>
-        )}
-      </form>
+        onCancel={handleCancel}
+        title={title}
+        content={content}
+        isEditMode={!!selectedEntry}
+        setContent={setContent}
+        setTitle={setTitle}
+      />
+
       <div className="notes-grid">
         {entries.map((entry) => (
-          <div
-            className="note-item"
+          <EntryCard
             key={entry.id}
+            entry={entry}
             onClick={() => handleEntryClick(entry)}
-          >
-            <div
-              className="notes-header"
-              onClick={(event) => {
-                return deleteEntry(event, entry.id);
-              }}
-            >
-              <button>x</button>
-            </div>
-            <h2>{entry.title}</h2>
-            <p>{entry.content}</p>
-          </div>
+            onDelete={(event) => deleteEntry(event, entry.id)}
+          />
         ))}
       </div>
     </div>
