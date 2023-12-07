@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
 
 type Entry = {
@@ -8,23 +8,7 @@ type Entry = {
 };
 
 function App() {
-  const [entries, setEntries] = useState<Entry[]>([
-    {
-      id: 1,
-      title: "note title",
-      content: "content 1",
-    },
-    {
-      id: 2,
-      title: "note title",
-      content: "content 2",
-    },
-    {
-      id: 3,
-      title: "note title",
-      content: "content 3",
-    },
-  ]);
+  const [entries, setEntries] = useState<Entry[]>([]);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
 
@@ -36,39 +20,61 @@ function App() {
     setContent(entry.content);
   };
 
-  const handleAddEntry = (event: React.FormEvent) => {
+  const handleAddEntry = async (event: React.FormEvent) => {
     event.preventDefault();
-    const newEntry: Entry = {
-      id: entries.length + 1,
-      title: title,
-      content: content,
-    };
-    setEntries([newEntry, ...entries]);
-    setTitle("");
-    setContent("");
+
+    try {
+      const response = await fetch(`http://localhost:0173/api/notes`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title,
+          content,
+        }),
+      });
+
+      const newEntry = await response.json();
+
+      setEntries([newEntry, ...entries]);
+      setTitle("");
+      setContent("");
+    } catch (error) {
+      console.log("error: ", error);
+    }
   };
 
-  const handleUpdate = (event: React.FormEvent) => {
+  const handleUpdate = async (event: React.FormEvent) => {
     event.preventDefault();
 
     if (!selectedEntry) {
       return;
     }
 
-    const updatedEntry: Entry = {
-      id: selectedEntry.id,
-      title: title,
-      content: content,
-    };
+    try {
+      const response = await fetch(
+        `http://localhost:0173/api/notes/${selectedEntry.id}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title,
+            content,
+          }),
+        }
+      );
 
-    const updatedEntryList = entries.map((entry) => {
-      return entry.id === selectedEntry.id ? updatedEntry : entry;
-    });
+      const updatedEntry = await response.json();
+      const updatedEntryList = entries.map((entry) => {
+        return entry.id === selectedEntry.id ? updatedEntry : entry;
+      });
 
-    setEntries(updatedEntryList);
-    setTitle("");
-    setContent("");
-    setSelectedEntry(null);
+      setEntries(updatedEntryList);
+      setTitle("");
+      setContent("");
+      setSelectedEntry(null);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleCancel = () => {
@@ -77,13 +83,37 @@ function App() {
     setSelectedEntry(null);
   };
 
-  const deleteEntry = (event: React.MouseEvent, noteId: number) => {
+  const deleteEntry = async (event: React.MouseEvent, noteId: number) => {
     event.stopPropagation();
+
+    try {
+      await fetch(`http://localhost:0173/api/notes/${noteId}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+    } catch (error) {
+      console.log(error);
+    }
 
     const updatedEntries = entries.filter((entries) => entries.id !== noteId);
 
     setEntries(updatedEntries);
   };
+
+  useEffect(() => {
+    const fetchEntries = async () => {
+      try {
+        const response = await fetch("http://localhost:0173/api/notes");
+
+        const entries: Entry[] = await response.json();
+
+        setEntries(entries);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchEntries();
+  }, []);
 
   return (
     <div className="app-container">
