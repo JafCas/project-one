@@ -87,7 +87,6 @@ function App() {
 
       setEntries(updatedEntryList);
       cleanUpInputs();
-      
     } catch (error) {
       console.log(error);
     }
@@ -95,14 +94,13 @@ function App() {
 
   const handleCancel = () => {
     cleanUpInputs();
-    
   };
 
   const handleDelete = async (event: React.MouseEvent, noteId: number) => {
     event.stopPropagation();
 
     try {
-      await deleteEntry(noteId)
+      await deleteEntry(noteId);
     } catch (error) {
       console.log(error);
     }
@@ -116,7 +114,7 @@ function App() {
     const fetchEntries = async () => {
       try {
         const response = await fetch("http://localhost:0173/api/notes");
-        const entries: Entry[] = await response.json()
+        const entries: Entry[] = await response.json();
 
         setEntries(entries);
       } catch (error) {
@@ -127,7 +125,7 @@ function App() {
   }, []);
 
   return (
-    <div className="app-container">
+    <>
       <input
         value={searchText}
         type="search"
@@ -136,31 +134,34 @@ function App() {
           setSearchText(event.target.value);
         }}
       />
-      <EntriesForm
-        onSubmit={(event) =>
-          selectedEntry ? handleUpdate(event) : handleAddEntry(event)
-        }
-        onCancel={handleCancel}
-        author={author}
-        title={title}
-        content={content}
-        isEditMode={!!selectedEntry}
-        setAuthor={setAuthor}
-        setContent={setContent}
-        setTitle={setTitle}
-      />
+      <div className="app-container">
+        <EntriesForm
+          onSubmit={(event) =>
+            selectedEntry ? handleUpdate(event) : handleAddEntry(event)
+          }
+          onCancel={handleCancel}
+          author={author}
+          title={title}
+          content={content}
+          isEditMode={!!selectedEntry}
+          setAuthor={setAuthor}
+          setContent={setContent}
+          setTitle={setTitle}
+        />
 
-      <div className="notes-grid">
-        {filteredEntries.map((entry) => (
-          <EntryCard
-            key={entry.id}
-            entry={entry}
-            onClick={() => handleEntryClick(entry)}
-            onDelete={(event) => handleDelete(event, entry.id)}
-          />
-        ))}
+        <div className="notes-grid">
+          {filteredEntries.map((entry) => (
+            <EntryCard
+              isSelected={selectedEntry?.id === entry.id}
+              key={entry.id}
+              entry={entry}
+              onClick={() => handleEntryClick(entry)}
+              onDelete={(event) => handleDelete(event, entry.id)}
+            />
+          ))}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

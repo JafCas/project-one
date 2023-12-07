@@ -32,7 +32,7 @@ const EntriesForm = ({
         onChange={(event) => {
           setTitle(event.target.value);
         }}
-        placeholder="title"
+        placeholder="Title"
         required
       />
       <textarea
@@ -40,7 +40,7 @@ const EntriesForm = ({
         onChange={(event) => {
           setContent(event.target.value);
         }}
-        placeholder="content"
+        placeholder="Content"
         rows={10}
         required
       />
@@ -50,13 +50,13 @@ const EntriesForm = ({
         onChange={(event) => {
           setAuthor(event.target.value);
         }}
-        placeholder="author"
+        placeholder="Author"
         required
       />
       {isEditMode ? (
         <div className="edit-buttons">
           <button type="submit">Save</button>
-          <button onClick={onCancel}>cancel</button>
+          <button onClick={onCancel}>Cancel</button>
         </div>
       ) : (
         <button type="submit">Add Entry</button>

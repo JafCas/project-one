@@ -10,7 +10,8 @@
 }
 
 .note-item.selected {
-  background-color: red;
+  background-color: #F11A7B;
+  border: '#58002C';
 }
 
 .notes-header {
