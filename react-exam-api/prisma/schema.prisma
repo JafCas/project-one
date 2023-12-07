@@ -15,4 +15,5 @@ model Entry {
   title String
   content String
   author String
+  publishDate DateTime
 }

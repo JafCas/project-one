@@ -8,6 +8,8 @@ const prisma = new PrismaClient();
 app.use(express.json());
 app.use(cors());
 
+const currentDate = new Date();
+
 app.get("/api/notes", async (request, response) => {
   const Entry = await prisma.entry.findMany();
 
@@ -22,7 +24,7 @@ app.post("/api/notes", async (request, response) => {
 
   try {
     const entry = await prisma.entry.create({
-      data: { title, content, author },
+      data: { title, content, author, publishDate: currentDate },
     });
     response.json(entry);
   } catch (error) {
@@ -45,7 +47,7 @@ app.put("/api/notes/:id", async (request, response) => {
   try {
     const updatedNote = await prisma.entry.update({
       where: { id },
-      data: { title, content, author },
+      data: { title, content, author , publishDate: currentDate},
     });
     response.json(updatedNote);
   } catch (error) {
